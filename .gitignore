@@ -1,0 +1,17 @@
+/*
+!/debian-loong64-security/
+!/debian-loong64/
+
+**/gpghome/
+**/appstream/workspace/
+**/db/
+**/podman/
+**/repo.lock
+**/public/
+**/orig-dists/
+**/pkg-logs/
+**/notification/
+**/logs/
+**/deleted/
+**/denied/
+**/lists/

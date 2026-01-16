@@ -1,0 +1,8 @@
+allow architectures 'loong64' | 'all' by group builders
+group builders add 0x5FF51169F4F2372F
+group builders add 0xCCA676250B8628E8
+group builders add 0xF08BC4CB1A3F43B3
+
+allow architectures 'source' by group developers
+group developers add 0xB031E3CA7BFED96E
+group developers add 0xFA0D166D6632EF4A

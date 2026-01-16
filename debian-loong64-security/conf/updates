@@ -1,0 +1,11 @@
+Name: debian-security-all
+Method: http://deb.debian.org/debian-security
+Architectures: all>loong64
+VerifyRelease: 9904613D4CCE68C6+
+
+Name: remove-stable
+Method: file:///srv/repos/debian-loong64/public
+Suite: trixie
+VerifyRelease: D81ED514A07B9DA8+
+FilterList: supersede /dev/null
+FilterSrcList: supersede /dev/null

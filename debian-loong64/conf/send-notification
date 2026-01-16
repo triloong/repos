@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -u
+set -e
+set -o pipefail
+
+action=$1
+codename=$2
+
+msg=''
+
+sanitize_string () {
+  string="$1"
+  printf "%s" "$1" | sed -r 's/([-_*\[`(~>#+=|{.!])/\\\1/g'
+}
+
+if [ "$action" = "accepted" ]; then
+        srcname=$3
+        version=$4
+        changes_file=$5
+        msg="Package \`$(sanitize_string "$srcname")\\_$(sanitize_string "$version")\` _ACCEPTED_ into $(sanitize_string "$codename")"
+else
+        pkgtype=$3
+        component=$4
+        arch=$5
+        pkgname=$6
+        if [ "$action" = "add" ]; then
+                newver=$7
+                msg="Package \`$(sanitize_string "$pkgname")\\_$(sanitize_string "$newver"):$(sanitize_string "$arch")\` of type \`$(sanitize_string "$pkgtype")\` is _added_ into \`$(sanitize_string "$codename")/$(sanitize_string "$component")\`"
+        elif [ "$action" = "replace" ]; then
+                newver=$7
+                oldver=$8
+                msg="Package \`$(sanitize_string "$pkgname")\\_$(sanitize_string "$oldver"):$(sanitize_string "$arch")\` of type \`$(sanitize_string "$pkgtype")\` is _replaced_ by \`$(sanitize_string "$newver")\` in \`$(sanitize_string "$codename")/$(sanitize_string "$component")\`" 
+        elif [ "$action" = "remove" ]; then
+                oldver=$7
+                msg="Package \`$(sanitize_string "$pkgname")\\_$(sanitize_string "$oldver"):$(sanitize_string "$arch")\` of type \`$(sanitize_string "$pkgtype")\` is _removed_ from \`$(sanitize_string "$codename")/$(sanitize_string "$component")\`"
+        fi
+fi
+
+telegram-send --config "$REPREPRO_BASE_DIR/notification/telegram.conf" --format markdown "$msg"

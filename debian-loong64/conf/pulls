@@ -1,0 +1,4 @@
+Name: remove-stable
+From: trixie
+FilterList: supersede /dev/null
+FilterSrcList: supersede /dev/null

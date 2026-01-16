@@ -1,0 +1,7 @@
+outdir +b/public
+gnupghome +b/gpghome
+verbose
+export force
+distdir +b/orig-dists
+outhook gen-dists.sh
+morguedir +b/deleted

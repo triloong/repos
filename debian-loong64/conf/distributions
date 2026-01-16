@@ -1,0 +1,90 @@
+Codename: trixie
+Suite: stable
+Architectures: loong64 source
+Components: main contrib non-free-firmware non-free
+UDebComponents: main contrib non-free-firmware non-free
+SignWith: 734FAB8ADC636909C6625883D81ED514A07B9DA8
+Origin: Debian
+Label: Debian
+Tracking: minimal includechanges includebuildinfos
+Log: trixie.log
+ send-notification
+ --changes send-notification
+Contents: .gz percomponent
+Version: 13.3
+Description: Debian 13.3 Released 10 January 2026
+DebIndices: Packages Release .gz .xz d-i-indice
+UDebIndices: Packages Release .gz .xz
+DscIndices: Sources Release .gz .xz dep11
+ReadOnly: yes
+# Update: builds2
+
+Codename: trixie-updates
+Suite: stable-updates
+Architectures: loong64 source
+Components: main contrib non-free-firmware non-free
+UDebComponents: main contrib non-free-firmware non-free
+SignWith: 734FAB8ADC636909C6625883D81ED514A07B9DA8
+Origin: Debian
+Label: Debian
+Tracking: minimal includechanges includebuildinfos
+Log: trixie-updates.log
+ send-notification
+ --changes send-notification
+Contents: .gz percomponent
+Version: 13-updates
+Description: Debian 13 - Updates
+DebIndices: Packages Release .gz .xz
+UDebIndices: Packages Release .gz .xz
+DscIndices: Sources Release .gz .xz dep11
+ValidFor: 7d
+Pull: remove-stable
+
+Codename: trixie-proposed-updates
+Suite: proposed-updates
+Architectures: loong64 source
+Components: main contrib non-free-firmware non-free
+UDebComponents: main contrib non-free-firmware non-free
+SignWith: 734FAB8ADC636909C6625883D81ED514A07B9DA8
+Origin: Debian
+Label: Debian
+Tracking: minimal includechanges includebuildinfos
+Log: trixie-proposed-updates.log
+ send-notification
+ --changes send-notification
+Contents: .gz percomponent
+Version: 13-updates
+Description: Debian 13 - Proposed Updates
+DebIndices: Packages Release .gz .xz d-i-indice
+UDebIndices: Packages Release .gz .xz
+DscIndices: Sources Release .gz .xz
+ValidFor: 7d
+AlsoAcceptFor: trixie trixie-security 
+Update: debian-main-all
+Pull: remove-stable
+Uploaders: uploaders
+ByHandHooks:
+  raw-installer * debian-installer-images_*.tar.gz byhand-di
+
+Codename: trixie-backports
+Suite: stable-backports
+Architectures: loong64 source
+Components: main contrib non-free-firmware non-free
+UDebComponents: main contrib non-free-firmware non-free
+SignWith: 734FAB8ADC636909C6625883D81ED514A07B9DA8
+Origin: Debian Backports
+Label: Debian Backports
+Tracking: minimal includechanges includebuildinfos
+Log: trixie-backports.log
+ send-notification
+ --changes send-notification
+Contents: .gz percomponent
+Description: Debian trixie - Backports
+DebIndices: Packages Release .gz .xz
+UDebIndices: Packages Release .gz .xz
+DscIndices: Sources Release .gz .xz dep11
+ValidFor: 7d
+NotAutomatic: yes
+ButAutomaticUpgrades: yes
+Update: debian-main-all
+Uploaders: uploaders

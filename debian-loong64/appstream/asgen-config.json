@@ -1,0 +1,42 @@
+{
+"ProjectName": "Debian",
+"ArchiveRoot": "/srv/mirrors/debian/",
+"ExportDirs":
+  {
+    "Html":  "/srv/appstream.debian.org/workspace/public"
+  },
+"Suites":
+  {
+
+      "trixie":
+      {
+        "sections": ["main", "contrib", "non-free", "non-free-firmware"],
+        "architectures": [ "loong64" ]
+      },
+      "trixie-updates":
+      {
+        "dataPriority": 10,
+        "sections": ["main", "contrib", "non-free", "non-free-firmware"],
+        "architectures": [ "loong64" ]
+      },
+      "trixie-backports":
+      {
+        "dataPriority": 15,
+        "sections": ["main", "contrib", "non-free", "non-free-firmware"],
+        "architectures": [ "loong64" ]
+      }
+  },
+"Icons":
+  {
+    "128x128@1": {"cached": true, "remote": false},
+    "48x48@1": {"cached": true, "remote": false},
+    "64x64@1": {"cached": true, "remote": false}
+  },
+"Features":
+  {
+    "noDownloads": true,
+    "createScreenshotsStore": false,
+    "screenshotVideos": false
+  }
+}
+

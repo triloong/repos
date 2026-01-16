@@ -1,0 +1,100 @@
+#!/bin/bash
+
+set -u
+set -e
+set -o pipefail
+
+if [ $# -lt 4 ]; then
+        echo "Usage: $0 release_dir new_indice_file indice_file_name mode"
+        exit 1
+fi
+
+release_dir=$1
+new_indice_file=$2
+indice_file_name=$3
+mode=$4
+
+if [ "$mode" != "new" ] && [ "$mode" != "change" ] && [ "$mode" != "old" ]; then
+        exit 0;
+fi
+
+if [ "${indice_file_name##*/}" != "Sources" ]; then
+        exit 0;
+fi
+
+exec </dev/null
+
+# XXX: It is assumed that Sources is generated the last
+# XXX: component name should not contain /
+component=$(echo "$indice_file_name" | cut -d '/' -f 1)
+suite=$(basename -- "$release_dir")
+
+tmpdir=$(mktemp -d)
+trap 'chmod u+w -R "$tmpdir"; rm -rf "$tmpdir"' EXIT
+
+absbasedir=$(realpath "$REPREPRO_BASE_DIR")
+absoutdir=$(realpath "$REPREPRO_OUT_DIR")
+
+mkdir -p "$tmpdir/podman.run"
+mkdir -p "$tmpdir/fakerepo/dists/$suite/$component"
+
+( 
+	cd $release_dir/$component
+	tar -cv --transform='s/\.new$//' binary-*/Packages*.new | tar -C "$tmpdir/fakerepo/dists/$suite/$component" -x
+)
+
+if [ "$component" != "main" ]; then
+	for i in "$release_dir/$component"/binary-*; do
+		mkdir -p "$tmpdir/fakerepo/dists/$suite/main/$(basename -- $i)"
+		: | gzip > "$tmpdir/fakerepo/dists/$suite/main/$(basename -- $i)/Packages.gz"
+	done
+fi
+
+podman_env (){
+	XDG_DATA_HOME="$tmpdir/podman" \
+	XDG_CONFIG_HOME="$tmpdir/podman" \
+	XDG_CACHE_HOME="$tmpdir/podman" \
+	XDG_RUNTIME_DIR="$tmpdir/podman.run" \
+	podman \
+	--storage-opt=overlay.ignore_chown_errors=true \
+	"$@"
+}
+
+podman_env image load < "$REPREPRO_BASE_DIR/podman/asgen.img.tar"
+mkdir -p "$REPREPRO_BASE_DIR/appstream/workspace"
+podman_env run --rm \
+--volume "$absbasedir/appstream/workspace:/srv/appstream.debian.org/workspace" \
+--volume "$absbasedir/appstream/extra-metainfo:/srv/appstream.debian.org/workspace/extra-metainfo:ro" \
+--volume "$absbasedir/appstream/asgen-config.json:/srv/appstream.debian.org/workspace/asgen-config.json:ro" \
+--volume "$tmpdir/fakerepo:/srv/mirrors/debian" \
+--volume "$absoutdir/pool:/srv/mirrors/debian/pool:ro" \
+--workdir "/srv/appstream.debian.org/workspace" \
+--network none \
+--userns keep-id:uid=0,gid=0 \
+--user 0:0 \
+--init \
+asgen \
+appstream-generator run "$suite" "$component"
+
+declare -A decomps
+decomps[gz]=zcat
+decomps[xz]=xzcat
+
+shopt -s nullglob
+for i in "$REPREPRO_BASE_DIR/appstream/workspace/export/data/$suite/$component/"{Components-*.yml.*,icons-*.tar.*}; do
+	indice_name=$(basename -- "$i")
+	mkdir -p "$release_dir/$component/dep11"
+	indice_orig_name=${indice_name%.*}
+	ext=${indice_name##*.}
+	if [ ! -e "$release_dir/$component/dep11/$indice_orig_name.new" ]; then
+		if [ -z "${decomps[$ext]-}" ]; then
+			echo "Unknown decompressor for $i" >&2
+			exit 1
+		fi
+		"${decomps[$ext]}" "$i" > "$release_dir/$component/dep11/$indice_orig_name.new"
+		echo "$component/dep11/$indice_orig_name.new" >&3
+	fi
+	cp -v "$i" "$release_dir/$component/dep11/$indice_name.new"
+	echo "$component/dep11/$indice_name.new" >&3
+done
+

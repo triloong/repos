@@ -1,0 +1,156 @@
+<component type="operating-system">
+  <id>org.debian.debian</id>
+  <name>Debian GNU/Linux</name>
+  <summary>The universal operating system</summary>
+  <description>
+    <p>
+      Debian is a free operating system (OS) for your computer.
+      An operating system is the set of basic programs and utilities that make your computer run.
+    </p>
+    <p>
+      The Debian Project is an association of individuals who have made common cause to create a free operating system.
+      This operating system that we have created is called Debian.
+    </p>
+    <p>
+      At the core of an operating system is the kernel.
+      The kernel is the most fundamental program on the computer and does all the basic housekeeping and lets you start other programs.
+      Debian systems use the Linux kernel. Linux is a piece of software started by Linus Torvalds and supported by thousands of
+      programmers worldwide.
+    </p>
+  </description>
+
+  <url type="homepage">https://www.debian.org/</url>
+  <metadata_license>MIT</metadata_license>
+  <developer id="org.debian">
+    <name>The Debian Project</name>
+  </developer>
+
+  <icon type="stock">debian-logo.svg</icon>
+
+  <releases>
+    <release version="14" type="development" date="2025-08-14">
+      <description>
+        <p>The current development version of Debian.</p>
+      </description>
+    </release>
+
+    <release version="13" date="2025-08-09">
+      <description>
+        <p>This release contains new features and changes:</p>
+        <ul>
+          <li>Official support for the riscv64 architecture</li>
+          <li>Hardening against ROP and COP/JOP attacks on amd64 and arm64</li>
+          <li>HTTP Boot Support</li>
+          <li>Improved manual pages translations</li>
+          <li>Spell-checking support in Qt WebEngine web browsers</li>
+          <li>64-bit time_t ABI transition</li>
+          <li>Debian progress towards reproducible builds</li>
+          <li>wcurl and HTTP/3 support in curl</li>
+          <li>BDIC Binary Hunspell Dictionary Support</li>
+          <li>Debian again ships with several desktop applications and environments.
+            Among others it now includes the desktop environments GNOME 48, KDE Plasma 6.3, LXDE 13,
+            LXQt 2.1.0, and Xfce 4.20.</li>
+        </ul>
+	<p>Check out the full release notes for a detailed overview of new features and changes.</p>
+      </description>
+
+      <url>https://www.debian.org/releases/trixie/release-notes/</url>
+    </release>
+
+    <release version="12" date="2023-06-10">
+      <description>
+        <p>This release contains many updated OS components and new features:</p>
+        <ul>
+          <li>The non-free section of Debian's repositories has been split, with non-free Firmware packages
+            being moved into a new section called non-free-firmware.
+            Users who need packages from this section (basically, everyone running Debian on real hardware)
+            may need to edit their <em>sources.list</em> files before upgrading to bookworm.</li>
+          <li>Filesystems: apfs read/write support with apfsprogs / apfs-dkms, convert ntfs 2 btrfs with ntfs2btrfs</li>
+          <li>New malloc implementation: mimalloc</li>
+          <li>Kernel SMB server: ksmbd-tools</li>
+        </ul>
+	<p>It also introduces some notable changes:</p>
+        <ul>
+          <li>GRUB bootloader packages will by default no longer run os-prober to look for other
+            operating systems on a computer when generating boot menus.
+            Users with dual-boot systems may configure this using dpkg-reconfigure on the package
+            in use (most likely grub-pc or grub-efi-amd64)</li>
+          <li>The use of bash as /bin/sh is no longer supported. /bin/sh will be changed (if necessary)
+            to point to dash (which has been the default configuration for many releases).
+            The effects and risks of manually changing the /bin/sh symlink are not known at this time.</li>
+          <li>The libpam-ldap and libnss-ldap packages have been removed due to lack of upstream activity;
+            libpam-ldapd and libnss-ldapd provide updated equivalent functionality.</li>
+          <li>This release only supports the merged-usr root filesystem layout.</li>
+          <li>A syslog daemon, such as rsyslog, is no longer installed by default; the systemd journalctl
+            utility is available to review logs. If desired, rsyslog and other syslog daemons are still
+            available to be installed manually; search for system-log-daemon packages.</li>
+          <li>The systemd package has demoted systemd-timesyncd from Depends to Recommends.
+            Thus, minimal installations no longer include an NTP client.
+            Installations with the default "standard system utilities" software selected,
+            will install systemd-timesyncd. Alternate NTP programs may be installed manually;
+            search for time-daemon packages(which doesn't work with apt.</li>
+          <li>The tempfile and rename.ul programs have been removed. Any scripts which use either of these
+            commands will need to be changed. Suitable replacements are mktemp and file-rename respectively.</li>
+          <li>The which program has been deprecated, and writes a warning to standard error (but still works,
+            so long as stderr is not being captured along with stdout).
+            Shell script writers are advised to use command -v instead. Interactive bash shell users are
+            advised to use type, or type -a. In zsh which is already a shell builtin, so interactive zsh
+            users are not affected, same thing for csh and its derivative tcsh.</li>
+        </ul>
+	<p>Check out the full release notes for a detailed overview of new features and changes.</p>
+      </description>
+
+      <url>https://www.debian.org/releases/bookworm/amd64/release-notes/</url>
+    </release>
+
+    <release version="11" date="2021-08-14">
+      <description>
+        <p>This release contains many updated OS components, including but not limited to:</p>
+        <ul>
+          <li>GNOME 3.38, KDE Plasma 5.20, LXDE 11, LXQt 0.16, MATE 1.24, and Xfce 4.16</li>
+          <li>Linux kernel from the 5.10 series</li>
+          <li>GNU Compiler Collection (default compiler) 10.2</li>
+          <li>LLVM/Clang toolchain 9.0.1 and 11.0.1 (default)</li>
+          <li>OpenSSH 8.4p1</li>
+          <li>Perl 5.32</li>
+          <li>Python 3.9.1</li>
+          <li>Rustc 1.48</li>
+          <li>Samba 4.13</li>
+          <li>and many more</li>
+        </ul>
+	<p>A lot of new features are also provided:</p>
+        <ul>
+          <li>Driverless scanning and printing</li>
+          <li>New <code>open</code> command as a convenience alias to <code>xdg-open</code></li>
+          <li>Control groups v2</li>
+          <li>Persistent systemd journal</li>
+          <li>New Fcitx 5 Input Method</li>
+          <li>Kernel support for exFAT</li>
+          <li>Improved man page translations</li>
+          <li>and many more</li>
+        </ul>
+	<p>Check out the full release notes for a detailed overview of new features and changes.</p>
+      </description>
+
+      <url>https://www.debian.org/releases/bullseye/amd64/release-notes/</url>
+    </release>
+
+    <release version="10" date="2019-07-06">
+      <description>
+        <p>
+          This release of Debian  now supports UEFI Secure Boot, has AppArmor enabled by default, uses LUKS2 as the default LUKS format,
+          and uses Wayland for the GNOME desktop session by default.
+        </p>
+        <p>
+          Linux kernel 4.19 is included, as well as GNOME 3.30, KDE Plasma 5.14, LXDE 0.99.2, LXQt 0.14, MATE 1.20, Xfce 4.12 and Cinnamon 3.8.
+        </p>
+      </description>
+    </release>
+
+    <release version="9" date="2017-07-17" date_eol="2020-07-17">
+      <description>
+        <p>Now contains the Linux kernel 4.9, GNOME 3.22, KDE Plasma 5, LibreOffice 5.2 and Qt 5.7. LXQt has been added.</p>
+      </description>
+    </release>
+  </releases>
+</component>

@@ -1,0 +1,21 @@
+Codename: trixie-security
+Suite: stable-security
+Architectures: loong64 source
+Components: main contrib non-free-firmware non-free
+UDebComponents: main contrib non-free-firmware non-free
+SignWith: 734FAB8ADC636909C6625883D81ED514A07B9DA8
+Origin: Debian
+Label: Debian-Security
+Tracking: minimal includechanges includebuildinfos
+Log: trixie-security.log
+ send-notification
+ --changes send-notification
+Contents: . .gz percomponent
+Version: 13
+Description: Debian 13 - Security Updates
+DebIndices: Packages Release .gz .xz
+UDebIndices: Packages Release .gz .xz
+DscIndices: Sources Release .gz .xz
+ValidFor: 7d
+Update: debian-security-all remove-stable
+Uploaders: uploaders

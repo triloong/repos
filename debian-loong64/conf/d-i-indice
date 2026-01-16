@@ -1,0 +1,76 @@
+#!/bin/bash
+
+set -u
+set -e
+set -o pipefail
+
+if [ $# -lt 4 ]; then
+	echo "Usage: $0 release_dir new_indice_file indice_file_name mode"
+	exit 1
+fi
+
+release_dir=$1
+new_indice_file=$2
+indice_file_name=$3
+mode=$4
+
+if [ "$mode" != "new" ] && [ "$mode" != "change" ] && [ "$mode" != "old" ]; then
+	exit 0;
+fi
+
+if [ "$mode" = "old" ]; then
+	new_indice_file="$indice_file_name"
+fi
+
+if [ "${indice_file_name##*/}" != "Packages" ]; then
+	exit 0;
+fi
+
+decomp=cat
+
+declare -A decomps
+
+decomps[gz]=zcat
+decomps[xz]=xzcat
+
+if [ ! -e "$release_dir/$new_indice_file" ]; then
+	new_file_ext=""
+	if [ "$mode" != "old" ]; then
+		new_file_ext=".${new_indice_file##*.}"
+	fi
+	for comp in gz xz; do
+		if [ -e "$release_dir/$indice_file_name.$comp$new_file_ext" ]; then
+			decomp="${decomps[$comp]}"
+			new_indice_file=$indice_file_name.$comp$new_file_ext
+			break
+		fi
+	done
+	if [ "$decomp" = "cat" ]; then
+		echo "Cannot find new indice file $release_dir/$new_indice_file"
+		exit 1
+	fi
+fi
+
+# XXX: component name should not contain /
+component=$(echo "$indice_file_name" | cut -d '/' -f 1)
+arch=$(echo "$indice_file_name" | cut -d '/' -f 2 | sed 's/^binary-//')
+suite=$(basename -- "$release_dir")
+
+installer_dir="$component/installer-$arch"
+if installer_version=$("$decomp" "$release_dir/$new_indice_file" | grep-dctrl -X -F "Package" "debian-installer" -s "Version" -n) && [ -n "$installer_version" ]; then
+	installer_date=${installer_version%%.*}
+	installer_date=${installer_date%%+~*}
+	if [ ! -d "$release_dir/$installer_dir/$installer_date" ]; then
+		echo "Cannot find installer image $release_dir/$installer_dir/$installer_date"
+		exit 1
+	fi
+	ln -sf -T "$installer_date" "$release_dir/$installer_dir/current"
+	ln -sf -T "$installer_date" "$REPREPRO_OUT_DIR/dists/$suite/$installer_dir/current"
+	echo "$installer_dir/current/images/MD5SUMS" >&3
+	echo "$installer_dir/current/images/SHA256SUMS" >&3
+	echo "$installer_dir/$installer_date/images/MD5SUMS" >&3
+	echo "$installer_dir/$installer_date/images/SHA256SUMS" >&3
+else
+	rm -f "$release_dir/$installer_dir/current"
+	rm -f "$REPREPRO_OUT_DIR/dists/$suite/$installer_dir/current"
+fi

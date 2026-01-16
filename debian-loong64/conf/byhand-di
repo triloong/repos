@@ -1,0 +1,119 @@
+#!/bin/bash
+
+set -u
+set -e
+set -o pipefail
+
+if [ $# -lt 5 ]; then
+	echo "Usage: $0 suite section priority filename filepath"
+	exit 1
+fi
+
+SUITE="$1"
+TARBALL="$5"	# Tarball to read, compressed with gzip
+CHANGES="$REPREPRO_CAUSING_FILE"
+# VERSION="$2"
+# ARCH="$3"
+# CHANGES="$4"	# Changes file for the upload
+
+error() {
+	echo "$*"
+	exit 1
+}
+
+if ! [ -f "$CHANGES" ]; then
+	error "unable to read changes file: $CHANGES"
+fi
+
+VERSION="$(sed --quiet '/^Version: /{s/^Version: //; p}' "$CHANGES" | head -n 1)"
+ARCH="$(sed --quiet '/^Architecture: /{s/^Architecture: //; p}' "$CHANGES" | head -n 1)"
+
+# Check validity of version number
+# Expected are: YYYYMMDD, YYYYMMDD.x, YYYYMMDD<suite>x, YYYYMMDD+<suite>x,
+# YYYYMMDD+debXuZ and the +b[0-9] on the end
+if ! echo "$VERSION" | grep -Eq "^[0-9]{8}((\.|\+?[a-z]+|\+deb[0-9]+u|\+kbsd[0-9]+u)[0-9]+.*)?(\+b[0-9])?$"; then
+	error "Invalid version: '$VERSION'"
+fi
+
+DATE=${VERSION%%.*}
+DATE=${DATE%%+~*}
+
+# This must end with /
+TARGET="$REPREPRO_OUT_DIR/dists/$SUITE/main/installer-$ARCH/"
+
+# Check validity of the target directory
+# This could fail, for example for new architectures; doing
+# a regular BYHAND is safer in that case
+if [ ! -d "$TARGET" ]; then
+	mkdir -p "$TARGET"
+fi
+# Check that there isn't already a directory for this version
+if [ -d "$TARGET/$DATE" ]; then
+	error "Directory already exists: $TARGET/$DATE"
+fi
+
+# We know the VERSION is sane by here, we just need to make sure we escape the + in +b1 (if any)
+# It needs 'g' as well as we may have +$DIST+b[0-9] or +debXuZ+bY
+VERSIONREGEXP="$(echo "$DATE" | sed 's@+@\\\+@g')"
+
+# We know all data to be in ./installer-<arch>/<version>; see if there's
+# anything else in the tarball except that and the 'current' symlink
+if tar tzf "$TARBALL" | \
+   grep -Eqv "^\./(installer-$ARCH/($VERSIONREGEXP/.*|current|)|)$"; then
+	error "Tarball contains unexpected contents"
+fi
+
+# Create a temporary directory where to store the images
+umask 002
+TMPDIR="$(mktemp -td byhand-di.XXXXXX)"
+
+# If we fail somewhere, cleanup the temporary directory
+cleanup() {
+        rm -rf "$TMPDIR"
+}
+trap cleanup EXIT
+
+# Extract the data into the temporary directory
+tar xzf "$TARBALL" --directory="$TMPDIR" "./installer-$ARCH/"
+
+# Check the 'current' symlink
+if [ ! -L $TMPDIR/installer-$ARCH/current ]; then
+	error "Missing 'current' symlink"
+elif [ X"$(readlink "$TMPDIR/installer-$ARCH/current")" != X"$DATE" ]; then
+	error "Incorrect 'current' symlink"
+fi
+
+# We should have an MD5SUMS file; use that for a final check
+if [ -r "$TMPDIR/installer-$ARCH/$DATE/images/MD5SUMS" ]; then
+	(
+		cd "$TMPDIR/installer-$ARCH/$DATE/images"
+		md5sum -c --status MD5SUMS || error "Error while checking MD5SUMS"
+	)
+else
+	error "Missing MD5SUMS file"
+fi
+
+# Move the data to the final location
+mv -t "$TARGET" "$TMPDIR/installer-$ARCH/$DATE"
+
+# Make checksum files available in the distdir
+
+TARGET2="$REPREPRO_DIST_DIR/$SUITE/main/installer-$ARCH/"
+if [ ! -d "$TARGET2" ]; then
+        mkdir -p "$TARGET2"
+fi
+
+mkdir -p "$TARGET2/$DATE/images/"
+for i in MD5SUMS SHA256SUMS; do
+	ln -t "$TARGET2/$DATE/images/" "$TARGET/$DATE/images/$i"
+done
+
+# Fixup permissions
+find "$TARGET/$DATE" -type d -exec chmod 755 {} +
+find "$TARGET/$DATE" -type f -exec chmod 644 {} +
+
+trap - EXIT
+cleanup
+
+exit 0
+

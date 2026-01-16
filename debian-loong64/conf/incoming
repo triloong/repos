@@ -1,0 +1,7 @@
+Name: default
+IncomingDir: incoming
+TempDir: tmp
+LogDir: pkg-logs
+Allow: trixie-proposed-updates trixie-backports trixie-security>trixie-proposed-updates trixie>trixie-proposed-updates
+Cleanup: on_deny on_error
+MorgueDir: denied

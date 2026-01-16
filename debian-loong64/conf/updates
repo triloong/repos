@@ -1,0 +1,9 @@
+Name: debian-main-all
+Method: http://deb.debian.org/debian
+Architectures: all>loong64
+VerifyRelease: 225629DF75B188BD+ | 762F67A0B2C39DE4+
+
+Name: builds2
+Method: file:///srv/repos/builds2/public
+VerifyRelease: 37DF43FC824F0FC3+
+Architectures: source loong64
