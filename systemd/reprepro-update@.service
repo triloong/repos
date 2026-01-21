@@ -1,0 +1,9 @@
+[Unit]
+Description = Update packages in repo %i
+
+[Service]
+Type = oneshot
+ExecStart = flock --verbose repo.lock reprepro update
+WorkingDirectory = /srv/repos/%i
+User = repo
+Group = repo

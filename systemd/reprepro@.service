@@ -1,0 +1,9 @@
+[Unit]
+Description = Handle incoming packages for repo %i
+
+[Service]
+Type = oneshot
+ExecStart = bash -c 'while compgen -G "incoming/*.changes" > /dev/null; do sleep 20; flock --verbose repo.lock /usr/bin/reprepro processincoming default; done'
+WorkingDirectory = /srv/repos/%i
+User = repo
+Group = repo

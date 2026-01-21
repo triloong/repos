@@ -1,6 +1,7 @@
 /*
 !/debian-loong64-security/
 !/debian-loong64/
+!/systemd/
 
 **/gpghome/
 **/appstream/workspace/

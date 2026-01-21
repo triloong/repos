@@ -1,0 +1,9 @@
+[Unit]
+Description = Monitor incoming uploads for repo %i
+
+[Path]
+PathExistsGlob = /srv/repos/%i/incoming/*.changes
+TriggerLimitIntervalSec = 0
+
+[Install]
+WantedBy = multi-user.target
